@@ -5,7 +5,7 @@ import { getMetalMaterial } from '../materials/MetalShader';
 export class TraceSystem {
     constructor(sceneManager) {
         this.sceneManager = sceneManager;
-        this.traces = []; // Store trace data: { id, points, width, layer }
+        this.traces = [];
         this.group = new THREE.Group();
         this.group.name = 'PCB_Traces';
         this.sceneManager.scene.add(this.group);
@@ -22,7 +22,7 @@ export class TraceSystem {
             const p2 = new THREE.Vector3(points[i+1][0], zOffset, points[i+1][1]);
             
             const distance = p1.distanceTo(p2);
-            const geometry = new THREE.BoxGeometry(width, 0.01, distance);
+            const geometry = new THREE.BoxGeometry(width, 0.005, distance);
             
             const material = getMetalMaterial();
             material.uniforms.uColor.value.set(COLORS.COPPER);
@@ -30,8 +30,6 @@ export class TraceSystem {
 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.userData.id = traceData.id;
-            
-            // Position and rotate the segment
             const center = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
             mesh.position.copy(center);
             mesh.lookAt(p2);

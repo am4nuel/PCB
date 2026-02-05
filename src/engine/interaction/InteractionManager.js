@@ -37,8 +37,8 @@ export class InteractionManager {
         });
 
         this.transformControls.addEventListener('change', () => {
-            if (this.selectedObject) {
-                if (this.selectedObject.isInstancedMesh && this.transformProxy.onUpdate) {
+            if (this.selectedObject && this.transformProxy.onUpdate) {
+                if (this.selectedObject.isInstancedMesh) {
                     this.transformProxy.onUpdate();
                 } else {
                     this.updateSelectedData();
@@ -56,11 +56,11 @@ export class InteractionManager {
     }
 
     checkHover() {
-        if (this.pcbManager.pads.circleMesh) {
-            this.pcbManager.pads.circleMesh.updateMatrixWorld();
-        }
+        if (this.pcbManager.pads.circleMesh) this.pcbManager.pads.circleMesh.updateMatrixWorld();
+        if (this.pcbManager.pads.rectMesh) this.pcbManager.pads.rectMesh.updateMatrixWorld();
+        this.pcbManager.traces.group.updateMatrixWorld();
+
         this.raycaster.setFromCamera(this.mouse, this.sceneManager.camera);
-        // Intersect pads and traces
         const intersects = this.raycaster.intersectObjects([
             this.pcbManager.pads.circleMesh,
             this.pcbManager.pads.rectMesh,
@@ -156,19 +156,25 @@ export class InteractionManager {
 
     deselect() {
         if (this.selectedObject) {
-            if (this.selectedObject.isInstancedMesh) {
-                const attr = this.selectedObject.geometry.getAttribute('aSelected');
-                if (attr) {
-                    attr.setX(this.selectedInstanceId, 0.0);
-                    attr.needsUpdate = true;
-                }
-            } else if (this.selectedObject.material && this.selectedObject.material.uniforms) {
-                this.selectedObject.material.uniforms.uSelected.value = 0.0;
-            }
-            this.transformControls.detach();
+            const object = this.selectedObject;
+            const instanceId = this.selectedInstanceId;
+
             this.selectedObject = null;
             this.selectedInstanceId = null;
-            this.transformProxy.onUpdate = null; // Clear callback
+            const onUpdate = this.transformProxy.onUpdate;
+            this.transformProxy.onUpdate = null;
+
+            if (object.isInstancedMesh) {
+                const attr = object.geometry.getAttribute('aSelected');
+                if (attr) {
+                    attr.setX(instanceId, 0.0);
+                    attr.needsUpdate = true;
+                }
+            } else if (object.material && object.material.uniforms) {
+                object.material.uniforms.uSelected.value = 0.0;
+            }
+
+            this.transformControls.detach();
             
             if (this.onSelectionChange) {
                 this.onSelectionChange(null);
@@ -182,9 +188,7 @@ export class InteractionManager {
         let componentData = null;
 
         if (this.selectedObject.isInstancedMesh) {
-            // Find component data from PCB manager
-            const pads = this.pcbManager.pads.pads;
-            const padData = pads[this.selectedInstanceId];
+            const padData = this.pcbManager.pads.getPadByInstance(this.selectedObject.name, this.selectedInstanceId);
             
             if (padData) {
                 // Update position in padData
@@ -222,13 +226,14 @@ export class InteractionManager {
 
     deleteSelected() {
         if (this.selectedObject) {
-            const id = this.selectedObject.isInstancedMesh 
-                ? this.pcbManager.pads.pads[this.selectedInstanceId]?.id 
-                : this.selectedObject.userData.id;
+            const padData = this.selectedObject.isInstancedMesh 
+                ? this.pcbManager.pads.getPadByInstance(this.selectedObject.name, this.selectedInstanceId)
+                : null;
+            const id = padData ? padData.id : this.selectedObject.userData.id;
             
             if (id) {
-                this.pcbManager.deleteComponent(id);
                 this.deselect();
+                this.pcbManager.deleteComponent(id);
             }
         }
     }

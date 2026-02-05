@@ -10,8 +10,6 @@ function App() {
 
   const handleEngineReady = (pcbEngine) => {
     setEngine(pcbEngine);
-    
-    // Listen for selection changes
     pcbEngine.interactionManager.onSelectionChange = (data) => {
         setSelectedComponent(data);
     };

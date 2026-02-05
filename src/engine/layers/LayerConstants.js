@@ -10,14 +10,16 @@ export const LAYERS = {
 export const Z_OFFSETS = {
     BOARD: 0,
     TOP_COPPER: 0.05,
+    TOP_PAD: 0.052,
     BOTTOM_COPPER: -0.05,
+    BOTTOM_PAD: -0.052,
     SILKSCREEN_TOP: 0.07,
     SILKSCREEN_BOTTOM: -0.07,
 };
 
 export const COLORS = {
-    BOARD: 0x1a4a1a, // Darker Solder Mask Green
-    COPPER: 0xb87333, // Real Copper shade
-    SILKSCREEN: 0xeeeeee, // Slightly off-white
+    BOARD: 0x1a4a1a,
+    COPPER: 0xb87333,
+    SILKSCREEN: 0xeeeeee,
     HOLE: 0x050505,
 };

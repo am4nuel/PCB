@@ -38,7 +38,7 @@ const Toolbar = ({ pcbManager }) => {
                     id: `pad_c_${r}_${c}`,
                     type: 'smd_circle',
                     pos: [startX + c * spacing, 0, startZ + r * spacing],
-                    size: [3.0, 3.0], // Diameter 3.0
+                    size: [3.0, 3.0],
                     layer: 'top'
                 });
             }
@@ -66,10 +66,10 @@ const Toolbar = ({ pcbManager }) => {
 
         const inset = 5;
         const corners = [
-            [-50 + inset, 0, -40 + inset], // Top-Left
-            [50 - inset, 0, -40 + inset],  // Top-Right
-            [50 - inset, 0, 40 - inset],   // Bottom-Right
-            [-50 + inset, 0, 40 - inset]   // Bottom-Left
+            [-50 + inset, 0, -40 + inset],
+            [50 - inset, 0, -40 + inset],
+            [50 - inset, 0, 40 - inset],
+            [-50 + inset, 0, 40 - inset]
         ];
 
         corners.forEach((pos, i) => {
@@ -97,7 +97,6 @@ const Toolbar = ({ pcbManager }) => {
         if (type === 'diagonal') {
             p2 = [x + 10, z + 10];
         } else {
-            // Straight - default to horizontal
             p2 = [x + 10, z];
         }
 

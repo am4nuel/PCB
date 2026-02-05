@@ -5,7 +5,7 @@ import { getMetalMaterial } from '../materials/MetalShader';
 export class PadSystem {
     constructor(sceneManager) {
         this.sceneManager = sceneManager;
-        this.pads = []; // Store pad data: { id, pos, size, type, layer }
+        this.pads = [];
         this.circleMesh = null;
         this.rectMesh = null;
         this.material = null;
@@ -58,9 +58,14 @@ export class PadSystem {
         let rectIdx = 0;
 
 
+        this.circleMesh.geometry.getAttribute('aHovered').array.fill(0);
+        this.circleMesh.geometry.getAttribute('aSelected').array.fill(0);
+        this.rectMesh.geometry.getAttribute('aHovered').array.fill(0);
+        this.rectMesh.geometry.getAttribute('aSelected').array.fill(0);
+
         this.pads.forEach((pad) => {
             const { pos, size, type, layer } = pad;
-            const zOffset = (layer === 'top' ? Z_OFFSETS.TOP_COPPER : Z_OFFSETS.BOTTOM_COPPER);
+            const zOffset = (layer === 'top' ? Z_OFFSETS.TOP_PAD : Z_OFFSETS.BOTTOM_PAD);
             
             matrix.makeScale(size[0], 1, size[1]);
             matrix.setPosition(pos[0], zOffset, pos[2]);
@@ -81,6 +86,23 @@ export class PadSystem {
         this.rectMesh.visible = rectIdx > 0;
         this.rectMesh.instanceMatrix.needsUpdate = true;
         this.rectMesh.computeBoundingSphere();
+
+        this.circleMesh.geometry.getAttribute('aHovered').needsUpdate = true;
+        this.circleMesh.geometry.getAttribute('aSelected').needsUpdate = true;
+        this.rectMesh.geometry.getAttribute('aHovered').needsUpdate = true;
+        this.rectMesh.geometry.getAttribute('aSelected').needsUpdate = true;
+    }
+
+    getPadByInstance(meshName, instanceId) {
+        const type = meshName === 'SMD_Pads_Circle' ? 'smd_circle' : 'smd_rect';
+        let foundIdx = 0;
+        for (const pad of this.pads) {
+            if (pad.type === type) {
+                if (foundIdx === instanceId) return pad;
+                foundIdx++;
+            }
+        }
+        return null;
     }
 
     deletePad(id) {

@@ -17,18 +17,14 @@ export class PCBManager {
     }
 
     loadData(data) {
-        // Clear existing
         this.clear();
 
-        // Collect holes first to perforate the board
         const holes = data.components?.filter(c => c.type === 'hole') || [];
 
-        // Update Board
         if (data.board) {
             this.board.updateDimensions(data.board.width, data.board.height, data.board.thickness, holes);
         }
 
-        // Add Components
         if (data.components) {
             data.components.forEach(comp => {
                 if (comp.type === 'smd_rect' || comp.type === 'smd_circle') {
@@ -66,14 +62,11 @@ export class PCBManager {
     }
 
     deleteComponent(id) {
-        // Try deleting from pads
         this.pads.deletePad(id);
-        // Try deleting from traces
         this.traces.deleteTrace(id);
     }
 
     clear() {
-        // Reset systems
         this.pads.pads = [];
         this.pads.updatePads();
         
